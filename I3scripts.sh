@@ -13,7 +13,7 @@ sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/ya
 git clone https://aur.archlinux.org/paru.git && cd paru && makepkg -si && cd
 
 ###### i3 ########
-sudo pacman -S --noconfirm --needed i3
+sudo pacman -S --noconfirm --needed xfce4 xfce4-goodies
 
 # sddm
 sudo pacman -S --noconfirm --needed sddm
