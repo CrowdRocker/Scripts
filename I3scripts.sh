@@ -20,30 +20,6 @@ sudo pacman -S --noconfirm --needed sddm
 sudo systemctl enable sddm.service
 
 ###### Packages ########     
-yay -S --noconfirm --needed ttf-unifont
-yay -S --noconfirm --needed polybar
-yay -S --noconfirm --needed siji-git
-yay -S --noconfirm --needed jmtpfs
-yay -S --noconfirm --needed picom-git
-yay -S --noconfirm --needed autotiling
-yay -S --noconfirm --needed conky
-yay -S --noconfirm --needed lf
-sudo pacman -S --noconfirm --needed dunst             
-sudo pacman -S --noconfirm --needed libmtp
-sudo pacman -S --noconfirm --needed mtpfs
-sudo pacman -S --noconfirm --needed gmtp
-sudo pacman -S --noconfirm --needed gvfs-gphoto2
-sudo pacman -S --noconfirm --needed gvfs-mtp
-yay -S --noconfirm --needed thunar
-yay -S --noconfirm --needed thunar-archive-plugin
-yay -S --noconfirm --needed thunar-volman
-yay -S --noconfirm --needed ffmpegthumbnailer
-yay -S --noconfirm --needed tumbler
-yay -S --noconfirm --needed raw-thumbnailer
-yay -S --noconfirm --needed ttf-jetbrains-mono
-yay -S --noconfirm --needed ttf-roboto
-sudo pacman -S --noconfirm --needed lsd
-sudo pacman -S --noconfirm --needed fzf
 yay -S --noconfirm --needed bottles
 yay -S --noconfirm --needed pikaur
 yay -S --noconfirm --needed yaru-icon-theme
@@ -65,8 +41,6 @@ yay -S --noconfirm --needed ncmpcpp
 yay -S --noconfirm --needed fastfetch
 yay -S --noconfirm --needed newsboat
 yay -S --noconfirm --needed neovim
-yay -S --noconfirm --needed ranger
-yay -S --noconfirm --needed rofi
 yay -S --noconfirm --needed retroarch
 yay -S --noconfirm --needed taskell
 yay -S --noconfirm --needed zathura
@@ -329,22 +303,6 @@ yay -S --noconfirm --needed opera
 yay -S --noconfirm --needed google-chrome
 yay -S --noconfirm --needed firefox
 
-###### ZSH ########
-yay -S --noconfirm --needed zsh
-yay -S --noconfirm --needed zsh-completions
-yay -S --noconfirm --needed grml-zsh-config
-sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-git clone https://github.com/zsh-users/zsh-autosuggestions.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-git clone https://github.com/Aloxaf/fzf-tab ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/fzf-tab
-git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-git clone https://github.com/marlonrichert/zsh-autocomplete.git ~/.oh-my-zsh/custom/plugins/zsh-autocomplete
-git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
-git clone https://github.com/zdharma-continuum/fast-syntax-highlighting ~/.oh-my-zsh/custom/plugins/fast-syntax-highlighting
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
-
-
 ###### Firewall installs ####
 sudo ufw enable
 sudo ufw status verbose
@@ -382,5 +340,11 @@ flatpak install flathub nz.mega.MEGAsync --assumeyes  --or-update --system
 flatpak install flathub fr.natron.Natron --assumeyes  --or-update --system
 flatpak install flathub com.protonvpn.www --assumeyes  --or-update --system
 flatpak install flathub me.proton.Pass --assumeyes  --or-update --system
+
+###### ZSH ########
+yay -S --noconfirm --needed zsh
+yay -S --noconfirm --needed zsh-completions
+yay -S --noconfirm --needed grml-zsh-config
+sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 sudo pacman -Syyu && sudo pacman -Syu
