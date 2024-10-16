@@ -13,7 +13,7 @@ sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/ya
 git clone https://aur.archlinux.org/paru.git && cd paru && makepkg -si && cd
 
 ###### i3 ########
-sudo pacman -S --noconfirm --needed xfce4 xfce4-goodies
+sudo pacman -S --noconfirm --needed  
 
 # sddm
 sudo pacman -S --noconfirm --needed sddm
@@ -291,8 +291,7 @@ yay -S --noconfirm --needed xterm
 yay -S --noconfirm --needed xorg-xrdb
 sudo pacman -S --noconfirm --needed xorg-xinit
 sudo pacman -S --noconfirm --needed xorg-fonts-misc
-yay -S --noconfirm --needed wireless-tools
-yay -S --noconfirm --needed wpa-supplicant
+
 
 ###### Browsers ########
 yay -S --noconfirm --needed brave-bin
