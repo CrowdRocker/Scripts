@@ -10,10 +10,10 @@ sudo pacman -S --noconfirm --needed flatpak
 sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si && cd
 
 ###### paru ########
-git clone https://aur.archlinux.org/paru.git && cd paru && makepkg -si && cd
+yay -S --noconfirm --needed paru 
 
 ###### i3 ########
-sudo pacman -S --noconfirm --needed  
+sudo pacman -S --noconfirm --needed  xfce4 xfce4-goodies i3status dmenu i3lock xorg-xinit i3-gaps picom polybar alacritty kitty dunst rofi BetterLockscreen SDDM-Astronaut-Theme nitrogen feh wdisplay
 
 # sddm
 sudo pacman -S --noconfirm --needed sddm
