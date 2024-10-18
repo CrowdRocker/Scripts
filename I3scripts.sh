@@ -12,8 +12,9 @@ sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/ya
 ###### paru ########
 yay -S --noconfirm --needed paru 
 
-###### i3 ########
-sudo pacman -S --noconfirm --needed  xfce4 xfce4-goodies i3status dmenu i3lock xorg-xinit i3-gaps picom polybar alacritty kitty dunst rofi BetterLockscreen SDDM-Astronaut-Theme nitrogen feh wdisplay
+###### i3 #######
+curl -L https://raw.githubusercontent.com/owpk/dotfiles-swayfx/main/install.sh | bash
+sudo pacman -S --noconfirm --needed  thunar picom polybar alacritty kitty dunst BetterLockscreen nitrogen feh wdisplay
 
 # sddm
 sudo pacman -S --noconfirm --needed sddm
