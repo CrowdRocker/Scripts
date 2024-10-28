@@ -6,7 +6,7 @@
 
 
 
-sudo pacman -S git
+sudo pacman -S —noconfirm —needed git
 
 git clone --bare https://github.com/simonvic/dotfiles.git ${XDG_DATA_HOME:-$HOME/.local/share}/.dotfiles
 
@@ -28,9 +28,9 @@ chmod +x ~/.config/i3/scripts/*
 chmod +x ~/.config/polybar/scripts/*
 
 sudo pacman -Syu
-sudo pacman -S base-devel
+sudo pacman -S —noconfirm —needed base-devel
 
-sudo pacman -S adobe-source-code-pro-fonts ttf-lato ttf-liberation noto-fonts noto-fonts-emoji
+sudo pacman -S —noconfirm —needed adobe-source-code-pro-fonts ttf-lato ttf-liberation noto-fonts noto-fonts-emoji
 
 git clone https://aur.archlinux.org/nerd-fonts-source-code-pro.git
 cd nerd-fonts-source-code-pro
@@ -55,7 +55,7 @@ git clone https://aur.archlinux.org/vimix-gtk-themes.git
 cd vimix-gtk-themes
 makepkg -si
 
-sudo pacman -S xorg
+sudo pacman -S —noconfirm —needed xorg
 
 sudo pacman -S feh numlockx wget rofi-calc libnotify redshift  xclip scrot imagemagick playerctl xss-lock xdg-utils
 
@@ -63,11 +63,11 @@ git clone https://aur.archlinux.org/i3lock-color.git
 cd i3lock-color
 makepkg -si
 
-sudo pacman -S bluez bluez-utils
+sudo pacman -S —noconfirm —needed bluez bluez-utils
 
 sudo systemctl enable --now bluetooth.service
 
-sudo pacman -S i3-gaps picom rofi dunst
+sudo pacman -S —noconfirm —needed i3-gaps picom rofi dunst
 
 git clone https://aur.archlinux.org/polybar.git
 cd polybar
@@ -75,11 +75,11 @@ makepkg -si
 
 bash -c "$(wget -qO- https://git.io/vQgMr)"
 
-sudo pacman -S neovim ripgrep fd gcc wget
+sudo pacman -S —noconfirm —needed neovim ripgrep fd gcc wget
 
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
-sudo pacman -S ranger ueberzug
+sudo pacman -S —noconfirm —needed ranger ueberzug
 
 ranger --copy-config=all
 
