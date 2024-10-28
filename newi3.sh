@@ -1,3 +1,11 @@
+# !/bin/bash
+
+
+
+###### i3 ########
+
+
+
 sudo pacman -S git
 
 git clone --bare https://github.com/simonvic/dotfiles.git ${XDG_DATA_HOME:-$HOME/.local/share}/.dotfiles
