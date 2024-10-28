@@ -12,7 +12,7 @@ git clone --bare https://github.com/simonvic/dotfiles.git ${XDG_DATA_HOME:-$HOME
 
 git --git-dir=${XDG_DATA_HOME:-$HOME/.local/share}/.dotfiles/ --work-tree=$HOME checkout
 
- git --git-dir=${XDG_DATA_HOME:-$HOME/.local/share}/.dotfiles/ --work-tree=$HOME checkout dev
+git --git-dir=${XDG_DATA_HOME:-$HOME/.local/share}/.dotfiles/ --work-tree=$HOME checkout dev
 
 git --git-dir=${XDG_DATA_HOME:-$HOME/.local/share}/.dotfiles/ --work-tree=$HOME config --local status.showUntrackedFiles no
 
@@ -85,11 +85,11 @@ ranger --copy-config=all
 
 git clone https://github.com/alexanderjeurissen/ranger_devicons ~/.config/ranger/plugins/ranger_devicons
 echo "" >> $HOME/.config/ranger/rc.conf
-Edit ~/.config/ranger/rc.conf and change settings to
-set vcs_aware true
-set preview_images true
-set preview_images_method ueberzug
-set draw_borders both
-default_linemode devicons
+#Edit ~/.config/ranger/rc.conf and change settings to
+#set vcs_aware true
+#set preview_images true
+#set preview_images_method ueberzug
+#set draw_borders both
+#default_linemode devicons
 
 sudo pacman -S htop
