@@ -13,8 +13,7 @@ sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/ya
 yay -S --noconfirm --needed paru 
 
 ###### i3 #######
-curl -L https://raw.githubusercontent.com/owpk/dotfiles-swayfx/main/install.sh | bash
-sudo pacman -S --noconfirm --needed  thunar picom polybar alacritty kitty dunst BetterLockscreen nitrogen feh wdisplay
+
 
 # sddm
 sudo pacman -S --noconfirm --needed sddm
