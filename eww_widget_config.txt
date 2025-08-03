@@ -1,0 +1,549 @@
+;; EWW Game Launcher Configuration
+;; Place in ~/.config/eww/eww.yuck
+
+;; Variables for system monitoring
+(defpoll cpu_usage :interval "2s" "scripts/get_cpu.sh")
+(defpoll gpu_usage :interval "2s" "scripts/get_gpu.sh")
+(defpoll ram_usage :interval "2s" "scripts/get_ram.sh")
+(defpoll gpu_temp :interval "3s" "scripts/get_gpu_temp.sh")
+(defpoll gaming_mode :interval "1s" "scripts/get_gaming_mode.sh")
+
+;; Recent games data
+(defpoll recent_games :interval "30s" "scripts/get_recent_games.sh")
+
+;; Search functionality
+(defvar search_query "")
+
+;; Main Game Launcher Window
+(defwindow gamelauncher
+  :monitor 0
+  :geometry (geometry 
+    :x "10%"
+    :y "10%"
+    :width "80%"
+    :height "80%"
+    :anchor "center")
+  :stacking "overlay"
+  :reserve (struts :distance "0px" :side "top")
+  :windowtype "desktop"
+  :wm-ignore false
+  
+  (game-launcher-widget))
+
+;; Game Launcher Widget
+(defwidget game-launcher-widget []
+  (box 
+    :class "game-launcher"
+    :orientation "v"
+    :space-evenly false
+    :spacing 0
+    
+    ;; Header Section
+    (box 
+      :class "launcher-header"
+      :orientation "h"
+      :space-evenly false
+      
+      (label 
+        :class "title"
+        :text "🎮 Matt's Gaming Hub")
+      
+      (box 
+        :class "system-stats"
+        :orientation "h"
+        :space-evenly false
+        :spacing 15
+        
+        (box 
+          :class "stat-item"
+          (label :text "CPU: ")
+          (label 
+            :class "stat-value"
+            :text "${cpu_usage}%"))
+        
+        (box 
+          :class "stat-item"
+          (label :text "GPU: ")
+          (label 
+            :class "stat-value"
+            :text "${gpu_usage}%"))
+        
+        (box 
+          :class "stat-item"
+          (label :text "RAM: ")
+          (label 
+            :class "stat-value"
+            :text "${ram_usage}%"))
+        
+        (box 
+          :class "stat-item"
+          (label :text "Temp: ")
+          (label 
+            :class "stat-value"
+            :text "${gpu_temp}°C"))))
+    
+    ;; Search Section
+    (box 
+      :class "search-section"
+      :orientation "v"
+      
+      (box 
+        :class "search-container"
+        
+        (input 
+          :class "search-input"
+          :placeholder "Search your games..."
+          :onchange "scripts/search_games.sh '{}'")))
+    
+    ;; Quick Launch Platform Buttons
+    (box 
+      :class "quick-launch"
+      :orientation "h"
+      :space-evenly true
+      :spacing 12
+      
+      (button 
+        :class "platform-btn steam"
+        :onclick "steam &"
+        "🚂 Steam")
+      
+      (button 
+        :class "platform-btn lutris"
+        :onclick "lutris &"
+        "🍷 Lutris")
+      
+      (button 
+        :class "platform-btn heroic"
+        :onclick "heroic &"
+        "⚡ Heroic")
+      
+      (button 
+        :class "platform-btn native"
+        :onclick "scripts/launch_native_games.sh"
+        "🐧 Native"))
+    
+    ;; Recently Played Games
+    (box 
+      :class "recently-played"
+      :orientation "v"
+      :space-evenly false
+      
+      (label 
+        :class "section-title"
+        :text "Recently Played")
+      
+      (scroll 
+        :hscroll true
+        :vscroll false
+        
+        (box 
+          :class "recent-games"
+          :orientation "h"
+          :space-evenly false
+          :spacing 15
+          
+          ;; The Division 2
+          (box 
+            :class "recent-game"
+            :orientation "v"
+            
+            (button 
+              :class "game-cover division"
+              :onclick "scripts/launch_game.sh 'division2'"
+              
+              (overlay
+                (box :class "game-icon" "🏙️")
+                (box 
+                  :class "play-icon"
+                  :style "opacity: 0;"
+                  "▶")))
+            
+            (box 
+              :class "game-info"
+              :orientation "v"
+              
+              (label 
+                :class "game-name"
+                :text "The Division 2")
+              
+              (box 
+                :class "game-stats"
+                :orientation "h"
+                
+                (label :text "Epic")
+                (label :text "127h"))))
+          
+          ;; First Descendant
+          (box 
+            :class "recent-game"
+            :orientation "v"
+            
+            (button 
+              :class "game-cover descendant"
+              :onclick "scripts/launch_game.sh 'descendant'"
+              
+              (overlay
+                (box :class "game-icon" "🤖")
+                (box 
+                  :class "play-icon"
+                  :style "opacity: 0;"
+                  "▶")))
+            
+            (box 
+              :class "game-info"
+              :orientation "v"
+              
+              (label 
+                :class "game-name"
+                :text "First Descendant")
+              
+              (box 
+                :class "game-stats"
+                :orientation "h"
+                
+                (label :text "Steam")
+                (label :text "89h"))))
+          
+          ;; Cyberpunk 2077
+          (box 
+            :class "recent-game"
+            :orientation "v"
+            
+            (button 
+              :class "game-cover cyberpunk"
+              :onclick "scripts/launch_game.sh 'cyberpunk'"
+              
+              (overlay
+                (box :class "game-icon" "🌆")
+                (box 
+                  :class "play-icon"
+                  :style "opacity: 0;"
+                  "▶")))
+            
+            (box 
+              :class "game-info"
+              :orientation "v"
+              
+              (label 
+                :class "game-name"
+                :text "Cyberpunk 2077")
+              
+              (box 
+                :class "game-stats"
+                :orientation "h"
+                
+                (label :text "Steam")
+                (label :text "156h")))))))
+    
+    ;; Favorite Games Grid
+    (box 
+      :class "favorite-games"
+      :orientation "v"
+      :space-evenly false
+      
+      (label 
+        :class "section-title"
+        :text "Your Favorites")
+      
+      (box 
+        :class "favorite-grid"
+        :orientation "h"
+        :space-evenly true
+        :spacing 15
+        
+        ;; Division 2 Card
+        (box 
+          :class "favorite-game"
+          :orientation "v"
+          
+          (overlay
+            (box 
+              :class "game-banner division-2"
+              :style "background: linear-gradient(135deg, #1a472a, #2d5a3d);")
+            
+            (box 
+              :class "launch-overlay"
+              :style "opacity: 0;"
+              
+              (button 
+                :class "launch-btn"
+                :onclick "scripts/launch_game.sh 'division2'"
+                "Launch Game")))
+          
+          (box 
+            :class "game-details"
+            :orientation "v"
+            
+            (label 
+              :class "game-title"
+              :text "Tom Clancy's The Division 2")
+            
+            (box 
+              :class "game-meta"
+              :orientation "h"
+              
+              (label 
+                :class "platform epic"
+                :text "Epic")
+              
+              (label 
+                :class "playtime"
+                :text "127 hours"))
+            
+            (box 
+              :class "game-actions"
+              :orientation "h"
+              :spacing 8
+              
+              (button 
+                :class "action-btn primary"
+                :onclick "scripts/launch_game.sh 'division2'"
+                "Play")
+              
+              (button 
+                :class "action-btn"
+                :onclick "scripts/game_info.sh 'division2'"
+                "Info"))))
+        
+        ;; First Descendant Card
+        (box 
+          :class "favorite-game"
+          :orientation "v"
+          
+          (overlay
+            (box 
+              :class "game-banner first-descendant"
+              :style "background: linear-gradient(135deg, #0f1419, #1a2332);")
+            
+            (box 
+              :class "launch-overlay"
+              :style "opacity: 0;"
+              
+              (button 
+                :class "launch-btn"
+                :onclick "scripts/launch_game.sh 'descendant'"
+                "Launch Game")))
+          
+          (box 
+            :class "game-details"
+            :orientation "v"
+            
+            (label 
+              :class "game-title"
+              :text "The First Descendant")
+            
+            (box 
+              :class "game-meta"
+              :orientation "h"
+              
+              (label 
+                :class "platform steam"
+                :text "Steam")
+              
+              (label 
+                :class "playtime"
+                :text "89 hours"))
+            
+            (box 
+              :class "game-actions"
+              :orientation "h"
+              :spacing 8
+              
+              (button 
+                :class "action-btn primary"
+                :onclick "scripts/launch_game.sh 'descendant'"
+                "Play")
+              
+              (button 
+                :class "action-btn"
+                :onclick "scripts/game_info.sh 'descendant'"
+                "Info"))))
+        
+        ;; Cyberpunk 2077 Card
+        (box 
+          :class "favorite-game"
+          :orientation "v"
+          
+          (overlay
+            (box 
+              :class "game-banner cyberpunk"
+              :style "background: linear-gradient(135deg, #fcee21, #ff0080);")
+            
+            (box 
+              :class "launch-overlay"
+              :style "opacity: 0;"
+              
+              (button 
+                :class "launch-btn"
+                :onclick "scripts/launch_game.sh 'cyberpunk'"
+                "Launch Game")))
+          
+          (box 
+            :class "game-details"
+            :orientation "v"
+            
+            (label 
+              :class "game-title"
+              :text "Cyberpunk 2077")
+            
+            (box 
+              :class "game-meta"
+              :orientation "h"
+              
+              (label 
+                :class "platform steam"
+                :text "Steam")
+              
+              (label 
+                :class "playtime"
+                :text "156 hours"))
+            
+            (box 
+              :class "game-actions"
+              :orientation "h"
+              :spacing 8
+              
+              (button 
+                :class "action-btn primary"
+                :onclick "scripts/launch_game.sh 'cyberpunk'"
+                "Play")
+              
+              (button 
+                :class "action-btn"
+                :onclick "scripts/game_info.sh 'cyberpunk'"
+                "Info")))))))
+
+;; Gaming Mode Toggle (Floating Widget)
+(defwindow gaming-mode-toggle
+  :monitor 0
+  :geometry (geometry 
+    :x "20px"
+    :y "20px"
+    :anchor "top right")
+  :stacking "overlay"
+  :reserve (struts :distance "0px" :side "top")
+  :windowtype "desktop"
+  :wm-ignore true
+  
+  (box 
+    :class "gaming-mode"
+    :orientation "h"
+    
+    (box 
+      :class "mode-toggle"
+      :orientation "h"
+      :spacing 10
+      
+      (label :text "Gaming Mode")
+      
+      (button 
+        :class "toggle-switch ${gaming_mode == 'on' ? 'active' : ''}"
+        :onclick "scripts/toggle_gaming_mode.sh"
+        
+        (box 
+          :class "toggle-thumb")))))
+
+;; Performance Monitor (Floating Widget)
+(defwindow performance-monitor
+  :monitor 0
+  :geometry (geometry 
+    :x "20px"
+    :y "20px"
+    :anchor "bottom right")
+  :stacking "overlay"
+  :reserve (struts :distance "0px" :side "bottom")
+  :windowtype "desktop"
+  :wm-ignore true
+  
+  (box 
+    :class "performance-monitor"
+    :orientation "v"
+    
+    (label 
+      :class "monitor-title"
+      :text "System Monitor")
+    
+    (box 
+      :class "monitor-stats"
+      :orientation "v"
+      :spacing 8
+      
+      ;; CPU Usage
+      (box 
+        :class "stat-bar"
+        :orientation "h"
+        
+        (label 
+          :class "stat-label"
+          :text "CPU")
+        
+        (box 
+          :class "stat-progress"
+          
+          (box 
+            :class "progress-fill cpu"
+            :style "width: ${cpu_usage}%;"))
+        
+        (label 
+          :class "stat-value"
+          :text "${cpu_usage}%"))
+      
+      ;; GPU Usage
+      (box 
+        :class "stat-bar"
+        :orientation "h"
+        
+        (label 
+          :class "stat-label"
+          :text "GPU")
+        
+        (box 
+          :class "stat-progress"
+          
+          (box 
+            :class "progress-fill gpu"
+            :style "width: ${gpu_usage}%;"))
+        
+        (label 
+          :class "stat-value"
+          :text "${gpu_usage}%"))
+      
+      ;; RAM Usage
+      (box 
+        :class "stat-bar"
+        :orientation "h"
+        
+        (label 
+          :class "stat-label"
+          :text "RAM")
+        
+        (box 
+          :class "stat-progress"
+          
+          (box 
+            :class "progress-fill ram"
+            :style "width: ${ram_usage}%;"))
+        
+        (label 
+          :class "stat-value"
+          :text "${ram_usage}%"))
+      
+      ;; GPU Temperature
+      (box 
+        :class "stat-bar"
+        :orientation "h"
+        
+        (label 
+          :class "stat-label"
+          :text "Temp")
+        
+        (box 
+          :class "stat-progress"
+          
+          (box 
+            :class "progress-fill temp"
+            :style "width: ${gpu_temp > 50 ? (gpu_temp - 50) * 2 : 0}%;"))
+        
+        (label 
+          :class "stat-value"
+          :text "${gpu_temp}°C")))))
