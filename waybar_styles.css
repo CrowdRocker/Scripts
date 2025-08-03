@@ -1,0 +1,460 @@
+/* Waybar TokyoNight Theme Styles */
+/* ~/.config/waybar/style.css */
+
+/* Import JetBrains Mono Nerd Font */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+/* TokyoNight Color Variables */
+* {
+    font-family: 'JetBrains Mono Nerd Font', 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    
+    /* Color definitions */
+    --bg-primary: #1a1b26;
+    --bg-secondary: #24283b;
+    --bg-surface: #414868;
+    --text-primary: #c0caf5;
+    --text-secondary: #9aa5ce;
+    --accent-blue: #7aa2f7;
+    --accent-purple: #bb9af7;
+    --accent-cyan: #7dcfff;
+    --accent-green: #9ece6a;
+    --accent-red: #f7768e;
+    --accent-orange: #ff9e64;
+    --accent-yellow: #e0af68;
+}
+
+/* Main Waybar Container */
+window#waybar {
+    background: linear-gradient(135deg, rgba(26, 27, 38, 0.9), rgba(36, 40, 59, 0.9));
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    color: var(--text-primary);
+}
+
+/* Hover Effects */
+#custom-arch-logo:hover,
+#custom-updates:hover,
+#cpu:hover,
+#memory:hover,
+#temperature:hover,
+#disk:hover,
+#custom-gaming-mode:hover,
+#custom-spotify:hover,
+#wireplumber:hover,
+#network:hover,
+#bluetooth:hover,
+#idle_inhibitor:hover,
+#custom-keybinds:hover,
+#custom-power-menu:hover,
+#clock:hover {
+    background: rgba(122, 162, 247, 0.2);
+    border-color: var(--accent-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(122, 162, 247, 0.3);
+}
+
+/* Arch Logo */
+#custom-arch-logo {
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    color: var(--bg-primary);
+    font-size: 16px;
+    font-weight: bold;
+    padding: 6px 14px;
+    margin-right: 8px;
+}
+
+#custom-arch-logo:hover {
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+    transform: scale(1.05);
+}
+
+/* Workspaces */
+#workspaces {
+    background: transparent;
+    padding: 0;
+    margin: 0 8px;
+}
+
+#workspaces button {
+    padding: 6px 10px;
+    margin: 0 2px;
+    border-radius: 10px;
+    background: rgba(65, 72, 104, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+    min-width: 32px;
+}
+
+#workspaces button:hover {
+    background: rgba(122, 162, 247, 0.3);
+    color: var(--accent-blue);
+    transform: scale(1.1);
+}
+
+#workspaces button.focused {
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    color: var(--bg-primary);
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 20px rgba(122, 162, 247, 0.5);
+}
+
+#workspaces button.urgent {
+    background: var(--accent-red);
+    color: var(--bg-primary);
+    animation: urgent-blink 1s ease infinite alternate;
+}
+
+@keyframes urgent-blink {
+    to {
+        background: var(--accent-orange);
+        box-shadow: 0 0 20px rgba(247, 118, 142, 0.8);
+    }
+}
+
+/* Window Title */
+#window {
+    background: rgba(36, 40, 59, 0.6);
+    padding: 6px 16px;
+    margin-left: 8px;
+    border-left: 3px solid var(--accent-cyan);
+    font-weight: 600;
+}
+
+/* System Monitoring Modules */
+#cpu {
+    color: var(--accent-red);
+    border-left: 3px solid var(--accent-red);
+}
+
+#memory {
+    color: var(--accent-green);
+    border-left: 3px solid var(--accent-green);
+}
+
+#temperature {
+    color: var(--accent-orange);
+    border-left: 3px solid var(--accent-orange);
+}
+
+#temperature.critical {
+    background: rgba(247, 118, 142, 0.3);
+    color: var(--accent-red);
+    animation: temp-critical 2s ease infinite alternate;
+}
+
+@keyframes temp-critical {
+    to {
+        background: rgba(247, 118, 142, 0.6);
+    }
+}
+
+#disk {
+    color: var(--accent-purple);
+    border-left: 3px solid var(--accent-purple);
+}
+
+/* Updates Module */
+#custom-updates {
+    color: var(--accent-yellow);
+    border-left: 3px solid var(--accent-yellow);
+}
+
+#custom-updates.has-updates {
+    background: rgba(224, 175, 104, 0.2);
+    animation: updates-pulse 3s ease infinite;
+}
+
+@keyframes updates-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Gaming Mode */
+#custom-gaming-mode {
+    color: var(--accent-red);
+    border-left: 3px solid var(--accent-red);
+}
+
+#custom-gaming-mode.active {
+    background: linear-gradient(135deg, rgba(247, 118, 142, 0.3), rgba(255, 158, 100, 0.3));
+    animation: gaming-glow 2s ease infinite alternate;
+}
+
+@keyframes gaming-glow {
+    to {
+        box-shadow: 0 0 30px rgba(247, 118, 142, 0.6);
+    }
+}
+
+/* Spotify */
+#custom-spotify {
+    color: var(--accent-green);
+    border-left: 3px solid var(--accent-green);
+    background: rgba(158, 206, 106, 0.1);
+}
+
+#custom-spotify:not(.playing) {
+    color: var(--text-secondary);
+    background: rgba(65, 72, 104, 0.3);
+}
+
+/* Audio */
+#wireplumber {
+    color: var(--accent-cyan);
+    border-left: 3px solid var(--accent-cyan);
+}
+
+#wireplumber.muted {
+    color: var(--accent-red);
+    background: rgba(247, 118, 142, 0.2);
+}
+
+/* Network */
+#network {
+    color: var(--accent-blue);
+    border-left: 3px solid var(--accent-blue);
+}
+
+#network.disconnected {
+    color: var(--accent-red);
+    background: rgba(247, 118, 142, 0.2);
+}
+
+#network.wifi {
+    background: rgba(122, 162, 247, 0.1);
+}
+
+#network.ethernet {
+    background: rgba(125, 207, 255, 0.1);
+}
+
+/* Bluetooth */
+#bluetooth {
+    color: var(--accent-purple);
+    border-left: 3px solid var(--accent-purple);
+}
+
+#bluetooth.disabled {
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+#bluetooth.connected {
+    background: rgba(187, 154, 247, 0.2);
+}
+
+/* Idle Inhibitor */
+#idle_inhibitor {
+    color: var(--accent-yellow);
+    border-left: 3px solid var(--accent-yellow);
+}
+
+#idle_inhibitor.activated {
+    background: rgba(224, 175, 104, 0.2);
+    color: var(--accent-orange);
+}
+
+/* Keybinds Reference */
+#custom-keybinds {
+    color: var(--accent-cyan);
+    border-left: 3px solid var(--accent-cyan);
+    font-size: 14px;
+}
+
+/* Power Menu */
+#custom-power-menu {
+    background: linear-gradient(135deg, var(--accent-red), var(--accent-orange));
+    color: var(--bg-primary);
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+#custom-power-menu:hover {
+    background: linear-gradient(135deg, var(--accent-orange), var(--accent-red));
+    transform: scale(1.05);
+}
+
+/* Clock */
+#clock {
+    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    color: var(--bg-primary);
+    font-weight: bold;
+    padding: 6px 16px;
+    margin-left: 4px;
+    font-size: 14px;
+}
+
+#clock:hover {
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+    transform: scale(1.02);
+}
+
+/* Tooltip Styling */
+tooltip {
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent-blue);
+    border-radius: 12px;
+    padding: 12px;
+    color: var(--text-primary);
+    font-size: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+tooltip label {
+    color: var(--text-primary);
+}
+
+/* Calendar Styling */
+calendar {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 12px;
+    margin: 8px;
+}
+
+calendar:selected {
+    background: var(--accent-blue);
+    color: var(--bg-primary);
+    border-radius: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+    * {
+        font-size: 12px;
+    }
+    
+    #custom-arch-logo,
+    #workspaces button,
+    #custom-power-menu,
+    #clock {
+        padding: 5px 10px;
+    }
+}
+
+@media (max-width: 1200px) {
+    #window {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    #custom-spotify {
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* Smooth Animations */
+.modules-left,
+.modules-center,
+.modules-right {
+    animation: slideInFromTop 0.8s ease;
+}
+
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Module Specific Animations */
+#workspaces button {
+    animation: workspaceSlide 0.5s ease;
+}
+
+@keyframes workspaceSlide {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Special Effects for Gaming */
+.gaming-active #custom-gaming-mode {
+    animation: gamingPulse 1.5s ease infinite;
+    box-shadow: 0 0 20px var(--accent-red);
+}
+
+@keyframes gamingPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+/* Battery indicator for connected devices (bluetooth) */
+#bluetooth.connected[data-battery] {
+    position: relative;
+}
+
+#bluetooth.connected[data-battery]:after {
+    content: attr(data-battery);
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--accent-green);
+    color: var(--bg-primary);
+    font-size: 8px;
+    padding: 2px 4px;
+    border-radius: 6px;
+    font-weight: bold;
+} 255, 0.1);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+/* Module Styling */
+.modules-left,
+.modules-center,
+.modules-right {
+    margin: 6px 0;
+}
+
+/* Individual Module Base */
+#custom-arch-logo,
+#workspaces,
+#window,
+#custom-updates,
+#cpu,
+#memory,
+#temperature,
+#disk,
+#custom-gaming-mode,
+#custom-spotify,
+#wireplumber,
+#network,
+#bluetooth,
+#idle_inhibitor,
+#custom-keybinds,
+#custom-power-menu,
+#clock {
+    padding: 6px 12px;
+    margin: 0 2px;
+    border-radius: 12px;
+    background: rgba(65, 72, 104, 0.3);
+    border: 1px solid rgba(255, 255,
