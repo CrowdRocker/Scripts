@@ -1,0 +1,609 @@
+🧭 Full Plan: Step-by-Step Guide
+
+
+
+⸻
+
+
+
+🗂️ 1. Backup Linux Home and Packages
+
+
+
+Backup your /home/ directory:
+
+
+
+rsync -aAXv /home/yourusername /run/media/yourusername/BackupDrive/home-backup
+
+
+
+Or, if you’re on Arch/CachyO
+
+
+
+tar -czvf home-backup.tar.gz /home/yourusername
+
+
+
+✅ Tip: Keep hidden files (.bashrc, .config, etc.) — they hold all your dotfiles.
+
+
+
+Save your installed package list:
+
+
+
+For Arch-based systems:
+
+
+
+pacman -Qqe > pkglist.txt
+
+
+
+For AUR packages too (optional):
+
+
+
+pacman -Qqm > aur-pkglist.txt
+
+
+
+💽 2. Reinstall Windows on the Main Drive
+
+	•	Use the Windows installer USB.
+
+	•	During install, select the main drive and click:
+
+	•	“Delete” on existing partitions
+
+	•	Select unallocated space → “Next” → let it auto-partition
+
+	•	Complete Windows install.
+
+
+
+💡 Now Windows will occupy the main drive cleanly, no Linux partitions.
+
+
+
+⸻
+
+
+
+🐧 3. Reinstall Linux on the Second Drive
+
+	•	Boot into your Linux installer (e.g., CachyOS, Arch, Fedora, etc.).
+
+	•	Choose Manual partitioning:
+
+	•	Install / (root) on your second drive
+
+	•	Create separate /home if you want
+
+	•	Set bootloader to second drive or let it install to main drive (will overwrite Windows bootloader unless you’re careful)
+
+	•	Finish Linux install.
+
+
+
+⸻
+
+
+
+🔁 4. Restore Your Linux Setup
+
+
+
+Restore /home:
+
+
+
+rsync -aAXv /run/media/yourusername/BackupDrive/home-backup /home/yourusername
+
+
+
+Or if tar’d:
+
+
+
+tar -xzvf home-backup.tar.gz -C /
+
+
+
+🔐 Make sure to match your old username and UID, or fix ownership:
+
+
+
+sudo chown -R yourusername:yourusername /home/yourusername
+
+
+
+Restore packages:
+
+
+
+sudo pacman -S --needed - < pkglist.txt
+
+yay -S --needed - < aur-pkglist.txt  # If you use yay
+
+
+
+⚙️ 5. Fix Boot (if needed)
+
+
+
+If GRUB didn’t install properly during your Linux reinstall, or Windows overwrote it:
+
+	•	Boot into Linux live USB
+
+	•	Mount Linux system (/mnt)
+
+	•	Chroot in
+
+	•	Reinstall GRUB:
+
+
+
+sudo mount /dev/sdXn /mnt          # Linux root
+
+sudo mount --bind /dev /mnt/dev
+
+sudo mount --bind /proc /mnt/proc
+
+sudo mount --bind /sys /mnt/sys
+
+sudo chroot /mnt
+
+grub-install /dev/sdX              # Usually main disk (not a partition)
+
+update-grub
+
+exit
+
+reboot
+
+
+
+Now GRUB should show both Windows and Linux.
+
+
+
+🧠 Final Notes
+
+Topic
+
+Note
+
+Home backup
+
+Make sure you include hidden folders (.config, .local, etc.)
+
+Package restore
+
+Some apps may have changed names or AUR packages may be missing — just skip those
+
+Drive layout
+
+Windows on main drive, Linux on second drive is clean and very stable
+
+BIOS/UEFI
+
+Make sure both OSes install in same mode (UEFI or BIOS)
+
+
+
+Great! Here’s your full copy-paste-ready guide, including:
+
+	•	✅ Backup script (home + packages)
+
+	•	💾 Reinstall instructions for Windows + Linux
+
+	•	🔄 Restore script
+
+	•	⚙️ Partition layout for clean setup
+
+
+
+⸻
+
+
+
+✅ Step 1: Backup Linux (backup-linux.sh)
+
+
+
+Save this as backup-linux.sh and run it:
+
+
+
+#!/bin/bash
+
+
+
+# Update: change this to your actual username and backup drive mount
+
+USER="yourusername"
+
+BACKUP_DRIVE="/run/media/$USER/BackupDrive"
+
+
+
+echo "📦 Backing up home directory to $BACKUP_DRIVE..."
+
+rsync -aAXv /home/$USER "$BACKUP_DRIVE/home-backup"
+
+
+
+echo "📝 Saving pacman package list..."
+
+pacman -Qqe > "$BACKUP_DRIVE/pkglist.txt"
+
+pacman -Qqm > "$BACKUP_DRIVE/aur-pkglist.txt"
+
+
+
+echo "✅ Backup complete!"
+
+
+
+🎯 Replace yourusername and BackupDrive accordingly before running:
+
+
+
+chmod +x backup-linux.sh
+
+./backup-linux.sh
+
+
+
+💾 Step 2: Reinstall Windows on Main Drive
+
+
+
+Use your bootable USB:
+
+	1.	Boot into the Windows installer
+
+	2.	On the “Where to install” screen:
+
+	•	Select your main drive (e.g., Disk 0)
+
+	•	Click Delete on each partition (it will say Linux or Unknown)
+
+	•	When it’s all unallocated space, click Next
+
+	3.	Let Windows finish installation
+
+
+
+✅ Now Windows is installed clean on Disk 0 (or your main SSD).
+
+
+
+⸻
+
+
+
+🐧 Step 3: Reinstall Linux (e.g., CachyOS) on Second Drive
+
+
+
+Partition layout suggestion:
+
+Partition
+
+Mount Point
+
+Filesystem
+
+Notes
+
+/dev/sdb1
+
+/
+
+ext4 or btrfs
+
+Root partition
+
+/dev/sdb2
+
+/home
+
+ext4 or btrfs
+
+Optional, can restore your home here
+
+/dev/sdb3
+
+(swap)
+
+swap
+
+Optional, 2–4 GB
+
+/dev/sdb (disk)
+
+GRUB install target
+
+Set in installer
+
+
+
+⚠️ Make sure you don’t overwrite the Windows drive (Disk 0)
+
+
+
+🔁 Step 4: Restore Linux Setup (restore-linux.sh)
+
+
+
+Once Linux is reinstalled and booted, run this:
+
+
+
+#!/bin/bash
+
+
+
+# Update: change these paths to match your setup
+
+USER="yourusername"
+
+BACKUP_DRIVE="/run/media/$USER/BackupDrive"
+
+
+
+echo "📂 Restoring /home directory..."
+
+rsync -aAXv "$BACKUP_DRIVE/home-backup/" "/home/$USER/"
+
+
+
+echo "🔑 Fixing ownership..."
+
+chown -R $USER:$USER "/home/$USER"
+
+
+
+echo "📦 Reinstalling pacman packages..."
+
+pacman -Syu --needed - < "$BACKUP_DRIVE/pkglist.txt"
+
+
+
+if command -v yay &> /dev/null; then
+
+    echo "📦 Reinstalling AUR packages..."
+
+    yay -S --needed - < "$BACKUP_DRIVE/aur-pkglist.txt"
+
+else
+
+    echo "⚠️ AUR helper (e.g. yay) not installed. Skipping AUR packages."
+
+fi
+
+
+
+echo "✅ Restore complete!"
+
+
+
+Run it after mounting your backup drive:
+
+
+
+chmod +x restore-linux.sh
+
+./restore-linux.sh
+
+
+
+⚙️ Step 5: Fix GRUB (If Linux doesn’t boot)
+
+
+
+If you boot into Windows only after Linux install, do this:
+
+
+
+Boot from a Linux live USB, then:
+
+
+
+sudo mount /dev/sdXn /mnt               # Mount Linux root
+
+sudo mount --bind /dev /mnt/dev
+
+sudo mount --bind /proc /mnt/proc
+
+sudo mount --bind /sys /mnt/sys
+
+sudo chroot /mnt
+
+grub-install /dev/sdX                   # X = your main drive (sda/nvme0n1)
+
+update-grub
+
+exit
+
+reboot
+
+
+
+✅ GRUB should now detect Windows + Linux.
+
+
+
+⸻
+
+
+
+🧠 Optional: UEFI Tip
+
+	•	Make sure both Windows and Linux are installed in the same boot mode:
+
+	•	Use UEFI for both (recommended)
+
+	•	Or Legacy/BIOS for both
+
+	•	You can check with:
+
+
+
+[ -d /sys/firmware/efi ] && echo "UEFI mode" || echo "Legacy BIOS mode"
+
+
+
+✅ Final Recap
+
+Step
+
+Action
+
+1
+
+Run backup-linux.sh to save home + packages
+
+2
+
+Wipe & reinstall Windows on main drive
+
+3
+
+Reinstall Linux on second drive
+
+4
+
+Run restore-linux.sh to restore everything
+
+5
+
+Reinstall GRUB if needed
+
+
+
+
+
+
+
+/////////////////
+
+
+
+🧾 What You Told Me:
+
+	•	Username: matt
+
+	•	Backup drive path: /run/media/linuxdrive-1
+
+	•	Backup archive file: likely home-backup.tar.gz
+
+
+
+⸻
+
+
+
+✅ Updated restore-linux.sh for Your Setup:
+
+
+
+#!/bin/bash
+
+
+
+# Set your actual user and backup drive path
+
+USER="matt"
+
+BACKUP_DRIVE="/run/media/linuxdrive-1"
+
+
+
+# 📂 Restore home directory from tar archive
+
+echo "📦 Restoring /home/$USER from tarball..."
+
+tar -xzvf "$BACKUP_DRIVE/home-backup.tar.gz" -C /
+
+
+
+# 🔑 Fix ownership of home directory
+
+echo "🔧 Fixing permissions..."
+
+chown -R $USER:$USER /home/$USER
+
+
+
+# 📦 Restore installed pacman packages
+
+echo "📦 Reinstalling pacman packages..."
+
+pacman -Syu --needed - < "$BACKUP_DRIVE/pkglist.txt"
+
+
+
+# Optional: restore AUR packages if using yay
+
+if command -v yay &> /dev/null; then
+
+    echo "📦 Reinstalling AUR packages..."
+
+    yay -S --needed - < "$BACKUP_DRIVE/aur-pkglist.txt"
+
+else
+
+    echo "⚠️ AUR helper not found. Skipping AUR packages."
+
+fi
+
+
+
+echo "✅ Restore complete!"
+
+
+
+▶️ How to Run It:
+
+	1.	Save the script:
+
+
+
+nano restore-linux.sh
+
+
+
+	2.	Paste in the code above (updated with your values)
+
+	3.	Make it executable:
+
+
+
+chmod +x restore-linux.sh
+
+
+
+4.	Run it:
+
+
+
+./restore-linux.sh
+
+
+
+🧠 Pro Tip:
+
+
+
+Before you run the script, double-check:
+
+
+
+ls /run/media/linuxdrive-1/home-backup.tar.gz
+
+ls /run/media/linuxdrive-1/pkglist.txt
