@@ -68,8 +68,10 @@ sudo dnf groupinstall "Development Tools"
 sudo dnf install git curl wget
 
 # Clone JaKoolit's Hyprland setup
-git clone https://github.com/JaKooLit/Fedora-Hyprland.git
-cd Fedora-Hyprland
+git clone --depth=1 https://github.com/JaKooLit/Fedora-Hyprland.git ~/Fedora-Hyprland
+cd ~/Fedora-Hyprland
+chmod +x install.sh
+./install.sh
 ```
 
 ### Run Installation
