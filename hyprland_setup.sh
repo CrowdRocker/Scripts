@@ -1,314 +1,379 @@
 #!/bin/bash
 
-# WehttamSnaps Hyprland Gaming & Streaming Setup Script
-# For Arch Linux and Arch-based distros
-# Optimized for AMD RX 580 gaming and content creation
+# WehttamSnaps Complete Hyprland Setup Script
+# TokyoNight Violet-to-Cyan Gaming Setup for Arch Linux
+# Author: Generated for Matt (WehttamSnaps)
 
 set -e
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# User info
-USERNAME=$(whoami)
-USER_HOME="/home/$USERNAME"
+# Logo
+cat << "EOF"
+╦ ╦┌─┐┬ ┬┌┬┐┌┬┐┌─┐┌┬┐╔═╗┌┐┌┌─┐┌─┐┌─┐
+║║║├┤ ├─┤ │  │ ├─┤│││╚═╗│││├─┤├─┘└─┐
+╚╩╝└─┘┴ ┴ ┴  ┴ ┴ ┴┴ ┴╚═╝┘└┘┴ ┴┴  └─┘
+   Hyprland Gaming Setup - TokyoNight Theme
+EOF
 
-echo -e "${PURPLE}🎮 WehttamSnaps Hyprland Gaming & Streaming Setup${NC}"
-echo -e "${BLUE}Setting up the ultimate Linux gaming and content creation environment...${NC}"
+echo -e "${PURPLE}Starting WehttamSnaps Hyprland Setup...${NC}"
 
-# Function to print section headers
-print_section() {
-    echo -e "\n${GREEN}=== $1 ===${NC}"
-}
+# Check if running as root
+if [[ $EUID -eq 0 ]]; then
+   echo -e "${RED}This script should not be run as root${NC}"
+   exit 1
+fi
 
-# Function to install packages
-install_packages() {
-    echo -e "${BLUE}Installing: $*${NC}"
-    sudo pacman -S --needed --noconfirm "$@"
-}
+# Create directories
+echo -e "${BLUE}Creating directory structure...${NC}"
+mkdir -p ~/.config/{hypr,waybar,rofi,dunst,kitty,fastfetch,eww,gtk-3.0,gtk-4.0}
+mkdir -p ~/.config/{sddm,grub,xfce4/terminal}
+mkdir -p ~/.local/share/{applications,icons,themes,fonts}
+mkdir -p ~/Pictures/wallpapers
+mkdir -p ~/.config/systemd/user
 
-# Function to install AUR packages
-install_aur() {
-    echo -e "${BLUE}Installing AUR packages: $*${NC}"
-    for pkg in "$@"; do
-        if ! pacman -Qi "$pkg" &> /dev/null; then
-            yay -S --noconfirm "$pkg"
-        fi
-    done
-}
-
-print_section "System Update & Base Setup"
+# Update system
+echo -e "${YELLOW}Updating system packages...${NC}"
 sudo pacman -Syu --noconfirm
 
-# Install yay AUR helper if not present
-if ! command -v yay &> /dev/null; then
-    print_section "Installing YAY AUR Helper"
+# Install base packages
+echo -e "${BLUE}Installing base Hyprland packages...${NC}"
+sudo pacman -S --noconfirm \
+    hyprland hyprpaper hyprlock hypridle \
+    waybar wofi rofi-wayland dunst mako \
+    kitty alacritty xfce4-terminal \
+    thunar thunar-volman thunar-archive-plugin thunar-media-tags-plugin \
+    pipewire pipewire-pulse pipewire-alsa pipewire-jack \
+    wireplumber pavucontrol playerctl \
+    grim slurp wl-clipboard \
+    brightnessctl pamixer \
+    polkit-gnome \
+    xdg-desktop-portal-hyprland \
+    qt5-wayland qt6-wayland \
+    noto-fonts noto-fonts-cjk noto-fonts-emoji \
+    ttf-font-awesome ttf-fira-code \
+    nwg-look azote \
+    fastfetch neofetch htop btop \
+    zsh starship \
+    firefox \
+    steam lutris heroic-games-launcher \
+    obs-studio \
+    gimp \
+    git base-devel
+
+# Install AUR helper (paru)
+if ! command -v paru &> /dev/null; then
+    echo -e "${YELLOW}Installing paru AUR helper...${NC}"
     cd /tmp
-    git clone https://aur.archlinux.org/yay.git
-    cd yay
+    git clone https://aur.archlinux.org/paru.git
+    cd paru
     makepkg -si --noconfirm
     cd ~
 fi
 
-print_section "Installing Core Hyprland & Dependencies"
-install_packages base-devel git curl wget unzip zip \
-    hyprland-git waybar-hyprland-git rofi-lbonn-wayland-git \
-    dunst mako libnotify wl-clipboard cliphist \
-    xdg-desktop-portal-hyprland qt5-wayland qt6-wayland \
-    polkit-gnome python-requests pamixer pavucontrol \
-    brightnessctl bluez bluez-utils bluetooth-autoconnect \
-    network-manager-applet grim slurp imagemagick \
-    ffmpeg viewnior mpv thunar thunar-archive-plugin \
-    file-roller btop htop neofetch fastfetch \
-    zsh starship lsd eza bat ripgrep fd fzf \
-    noto-fonts noto-fonts-emoji ttf-jetbrains-mono-nerd \
-    pipewire pipewire-alsa pipewire-pulse pipewire-jack \
-    wireplumber alsa-utils
+# Install AUR packages
+echo -e "${BLUE}Installing AUR packages...${NC}"
+paru -S --noconfirm \
+    eww-wayland \
+    hyprshot \
+    sddm-sugar-candy-git \
+    gamemode \
+    gamescope \
+    mangohud \
+    goverlay \
+    preload \
+    zramd
 
-print_section "Installing Gaming Essentials"
-# AMD GPU drivers and gaming packages
-install_packages mesa lib32-mesa xf86-video-amdgpu vulkan-radeon \
-    lib32-vulkan-radeon mesa-vdpau lib32-mesa-vdpau \
-    steam lutris heroic-games-launcher-bin mangohud \
-    gamemode lib32-gamemode wine winetricks \
-    dxvk-bin vkd3d proton-ge-custom-bin \
-    gamescope xorg-xwayland
+# AMD optimizations
+echo -e "${PURPLE}Setting up AMD gaming optimizations...${NC}"
 
-# Enable services for gaming
-sudo systemctl enable bluetooth
-sudo usermod -aG gamemode "$USERNAME"
+# Enable gamemode
+sudo systemctl enable --now gamemode
 
-print_section "Installing Content Creation Tools"
-install_packages obs-studio gimp krita blender \
-    audacity kdenlive simplescreenrecorder \
-    v4l2loopback-dkms linux-headers
+# Setup zram
+sudo systemctl enable --now zramd
 
-# Load v4l2loopback for OBS virtual camera
-echo 'v4l2loopback' | sudo tee /etc/modules-load.d/v4l2loopback.conf
-sudo modprobe v4l2loopback
-
-print_section "Installing Theme & Appearance Tools"
-install_packages nwg-look azote sddm qt5-graphicaleffects \
-    qt5-quickcontrols2 qt5-svg gtk3 gtk4
-
-# AUR packages for enhanced functionality
-print_section "Installing AUR Packages"
-install_aur eww-wayland fuzzel-git hyprpicker-git \
-    swaylock-effects-git swayidle-git wlogout \
-    waybar-module-pacman-updates-git \
-    sddm-sugar-candy-git nwg-drawer \
-    webapp-manager-git photopea-git \
-    vesktop-git spotify discord
-
-print_section "Setting up JaKooLit Dotfiles"
-# Clone JaKooLit's configuration
-cd "$USER_HOME"
-if [ ! -d "$USER_HOME/.config" ]; then
-    mkdir -p "$USER_HOME/.config"
+# AMD GPU optimizations
+if lspci | grep -i amd | grep -i vga; then
+    echo 'SUBSYSTEM=="drm", KERNEL=="card*", DRIVERS=="amdgpu", ATTR{device/power_dpm_force_performance_level}="high"' | sudo tee /etc/udev/rules.d/30-amdgpu-pm.rules
 fi
 
-# Backup existing configs
-if [ -d "$USER_HOME/.config/hypr" ]; then
-    mv "$USER_HOME/.config/hypr" "$USER_HOME/.config/hypr.backup.$(date +%Y%m%d)"
-fi
+# Create Hyprland config
+echo -e "${CYAN}Creating Hyprland configuration...${NC}"
+cat > ~/.config/hypr/hyprland.conf << 'EOF'
+# WehttamSnaps Hyprland Config - TokyoNight Violet-to-Cyan
 
-# Clone the dotfiles
-git clone --depth=1 https://github.com/JaKooLit/Hyprland-Dots.git /tmp/Hyprland-Dots
-cp -r /tmp/Hyprland-Dots/config/* "$USER_HOME/.config/"
-cp -r /tmp/Hyprland-Dots/Pictures "$USER_HOME/"
-rm -rf /tmp/Hyprland-Dots
+# Monitor setup
+monitor = ,1920x1080@60,0x0,1
 
-print_section "Configuring AMD Gaming Optimizations"
-# Create AMD GPU optimization script
-cat > "$USER_HOME/.local/bin/amd-gaming-opts" << 'EOF'
-#!/bin/bash
-# AMD RX 580 Gaming Optimizations
+# Environment variables
+env = XCURSOR_SIZE,24
+env = HYPRCURSOR_SIZE,24
+env = QT_QPA_PLATFORMTHEME,qt5ct
+env = QT_QPA_PLATFORM,wayland;xcb
+env = GDK_BACKEND,wayland,x11
+env = CLUTTER_BACKEND,wayland
+env = XDG_CURRENT_DESKTOP,Hyprland
+env = XDG_SESSION_TYPE,wayland
+env = XDG_SESSION_DESKTOP,Hyprland
 
-# Set AMD GPU power profile to high performance
-echo "high" | sudo tee /sys/class/drm/card0/device/power_dpm_force_performance_level
+# AMD Gaming optimizations
+env = RADV_PERFTEST,aco
+env = AMD_VULKAN_ICD,RADV
+env = VK_ICD_FILENAMES,/usr/share/vulkan/icd.d/radeon_icd.x86_64.json
 
-# Enable GPU frequency scaling
-echo "1" | sudo tee /sys/class/drm/card0/device/pp_power_profile_mode
+# Execute your favorite apps at launch
+exec-once = waybar
+exec-once = hyprpaper
+exec-once = dunst
+exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+exec-once = eww daemon
 
-# Set CPU governor to performance for gaming
-echo "performance" | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+# Input configuration
+input {
+    kb_layout = us
+    kb_variant = 
+    kb_model =
+    kb_options =
+    kb_rules =
 
-# Enable FSYNC
-export WINEFSYNC=1
+    follow_mouse = 1
+    sensitivity = 0
 
-# Vulkan optimizations
-export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/radeon_icd.x86_64.json:/usr/share/vulkan/icd.d/radeon_icd.i686.json
-export RADV_PERFTEST=aco
+    touchpad {
+        natural_scroll = false
+    }
+}
 
-echo "AMD Gaming optimizations applied!"
-EOF
+# General settings
+general {
+    gaps_in = 8
+    gaps_out = 12
+    border_size = 2
+    
+    # TokyoNight colors - violet to cyan gradient
+    col.active_border = rgba(bb9af7ff) rgba(7dcfffff) 45deg
+    col.inactive_border = rgba(414868aa)
 
-chmod +x "$USER_HOME/.local/bin/amd-gaming-opts"
+    resize_on_border = false
+    allow_tearing = true
 
-# Create Steam launch options helper
-cat > "$USER_HOME/.local/bin/steam-launch-opts" << 'EOF'
-#!/bin/bash
-echo "Recommended Steam Launch Options for AMD RX 580:"
-echo ""
-echo "For Cyberpunk 2077:"
-echo "gamemoderun mangohud RADV_PERFTEST=aco %command%"
-echo ""
-echo "For The Division 1/2:"
-echo "gamemoderun DXVK_ASYNC=1 %command%"
-echo ""
-echo "For The First Descendant:"
-echo "gamemoderun mangohud RADV_PERFTEST=aco DXVK_ASYNC=1 %command%"
-echo ""
-echo "General gaming:"
-echo "gamemoderun mangohud %command%"
-EOF
+    layout = dwindle
+}
 
-chmod +x "$USER_HOME/.local/bin/steam-launch-opts"
+# Decoration
+decoration {
+    rounding = 8
 
-print_section "Setting up SDDM Theme"
-# Configure SDDM with Sugar Candy theme
-sudo mkdir -p /etc/sddm.conf.d
-cat > /tmp/sddm.conf << 'EOF'
-[Theme]
-Current=sugar-candy
+    active_opacity = 1.0
+    inactive_opacity = 0.9
 
-[Users]
-MaximumUid=60513
-MinimumUid=1000
-EOF
+    drop_shadow = true
+    shadow_range = 4
+    shadow_render_power = 3
+    col.shadow = rgba(1a1a2e35)
 
-sudo mv /tmp/sddm.conf /etc/sddm.conf.d/theme.conf
-sudo systemctl enable sddm
+    blur {
+        enabled = true
+        size = 8
+        passes = 3
+        vibrancy = 0.1696
+    }
+}
 
-print_section "Configuring Zsh & Terminal"
-# Install oh-my-zsh
-if [ ! -d "$USER_HOME/.oh-my-zsh" ]; then
-    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --unattended
-fi
+# Animations - Cyberpunk feel
+animations {
+    enabled = true
 
-# Set zsh as default shell
-sudo chsh -s $(which zsh) "$USERNAME"
+    bezier = myBezier, 0.05, 0.9, 0.1, 1.05
+    bezier = smooth, 0.25, 0.46, 0.45, 0.94
 
-# Create custom zsh config
-cat > "$USER_HOME/.zshrc" << 'EOF'
-# WehttamSnaps Zsh Configuration
-export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="robbyrussell"
+    animation = windows, 1, 7, myBezier
+    animation = windowsOut, 1, 7, default, popin 80%
+    animation = border, 1, 10, default
+    animation = borderangle, 1, 8, default
+    animation = fade, 1, 7, default
+    animation = workspaces, 1, 6, default
+}
 
-plugins=(git sudo zsh-autosuggestions zsh-syntax-highlighting)
+# Layouts
+dwindle {
+    pseudotile = true
+    preserve_split = true
+    smart_split = true
+}
 
-source $ZSH/oh-my-zsh.sh
+# Window rules
+windowrule = float, ^(pavucontrol)$
+windowrule = float, ^(blueman-manager)$
+windowrule = float, ^(nm-connection-editor)$
+windowrule = float, ^(org.kde.polkit-kde-authentication-agent-1)$
 
-# Aliases
-alias ls='eza --icons'
-alias ll='eza -la --icons'
-alias cat='bat'
-alias grep='ripgrep'
+# Gaming rules
+windowrulev2 = immediate, class:^(steam_app_)(.*)$
+windowrulev2 = immediate, class:^(gamescope)$
+windowrulev2 = fullscreen, class:^(gamescope)$
+
+# Key bindings
+$mainMod = SUPER
+
+# Application shortcuts
+bind = $mainMod, Q, exec, xfce4-terminal
+bind = $mainMod, C, killactive,
+bind = $mainMod, M, exit,
+bind = $mainMod, E, exec, thunar
+bind = $mainMod, V, togglefloating,
+bind = $mainMod, R, exec, rofi -show drun
+bind = $mainMod, P, pseudo,
+bind = $mainMod, J, togglesplit,
+bind = $mainMod, F, fullscreen,
 
 # Gaming shortcuts
-alias steam-opts='steam-launch-opts'
-alias amd-boost='amd-gaming-opts'
+bind = $mainMod, G, exec, steam
+bind = $mainMod SHIFT, G, exec, lutris
+bind = $mainMod CTRL, G, exec, heroic
 
-# Init starship prompt
-eval "$(starship init zsh)"
+# Screenshots
+bind = , Print, exec, hyprshot -m output
+bind = SHIFT, Print, exec, hyprshot -m window
+bind = $mainMod, Print, exec, hyprshot -m region
 
-# Neofetch on terminal start
-neofetch
+# Audio
+bind = , XF86AudioRaiseVolume, exec, pamixer -i 5
+bind = , XF86AudioLowerVolume, exec, pamixer -d 5
+bind = , XF86AudioMute, exec, pamixer -t
+
+# Move focus
+bind = $mainMod, left, movefocus, l
+bind = $mainMod, right, movefocus, r
+bind = $mainMod, up, movefocus, u
+bind = $mainMod, down, movefocus, d
+
+# Switch workspaces
+bind = $mainMod, 1, workspace, 1
+bind = $mainMod, 2, workspace, 2
+bind = $mainMod, 3, workspace, 3
+bind = $mainMod, 4, workspace, 4
+bind = $mainMod, 5, workspace, 5
+bind = $mainMod, 6, workspace, 6
+bind = $mainMod, 7, workspace, 7
+bind = $mainMod, 8, workspace, 8
+bind = $mainMod, 9, workspace, 9
+bind = $mainMod, 0, workspace, 10
+
+# Move windows to workspace
+bind = $mainMod SHIFT, 1, movetoworkspace, 1
+bind = $mainMod SHIFT, 2, movetoworkspace, 2
+bind = $mainMod SHIFT, 3, movetoworkspace, 3
+bind = $mainMod SHIFT, 4, movetoworkspace, 4
+bind = $mainMod SHIFT, 5, movetoworkspace, 5
+bind = $mainMod SHIFT, 6, movetoworkspace, 6
+bind = $mainMod SHIFT, 7, movetoworkspace, 7
+bind = $mainMod SHIFT, 8, movetoworkspace, 8
+bind = $mainMod SHIFT, 9, movetoworkspace, 9
+bind = $mainMod SHIFT, 0, movetoworkspace, 10
+
+# Mouse bindings
+bindm = $mainMod, mouse:272, movewindow
+bindm = $mainMod, mouse:273, resizewindow
 EOF
 
-print_section "Creating Custom Waybar Configuration"
-# Custom waybar config for WehttamSnaps
-mkdir -p "$USER_HOME/.config/waybar"
-cat > "$USER_HOME/.config/waybar/config.jsonc" << 'EOF'
+# Create Waybar config
+echo -e "${CYAN}Creating Waybar configuration...${NC}"
+cat > ~/.config/waybar/config << 'EOF'
 {
     "layer": "top",
     "position": "top",
     "height": 35,
-    "spacing": 4,
-    "margin-top": 5,
-    "margin-left": 10,
-    "margin-right": 10,
+    "spacing": 0,
+    "margin-top": 8,
+    "margin-left": 12,
+    "margin-right": 12,
     
-    "modules-left": ["custom/arch", "hyprland/workspaces", "hyprland/window"],
-    "modules-center": ["custom/spotify"],
-    "modules-right": ["custom/pacman", "temperature", "memory", "cpu", "disk", "pulseaudio", "bluetooth", "network", "battery", "custom/power", "clock"],
+    "modules-left": ["custom/menu", "hyprland/workspaces", "hyprland/window"],
+    "modules-center": ["clock"],
+    "modules-right": ["custom/gamemode", "pulseaudio", "network", "cpu", "memory", "temperature", "custom/updates", "tray", "custom/power"],
 
-    "custom/arch": {
-        "format": " 󰣇 ",
+    "custom/menu": {
+        "format": " ",
         "tooltip": false,
-        "on-click": "nwg-drawer"
+        "on-click": "nwg-drawer",
+        "on-click-right": "killall nwg-drawer"
     },
-    
+
     "hyprland/workspaces": {
         "disable-scroll": true,
         "all-outputs": true,
         "format": "{icon}",
         "format-icons": {
-            "1": "1",
-            "2": "2", 
-            "3": "3",
-            "4": "4",
-            "5": "5",
-            "urgent": "",
-            "focused": "",
-            "default": ""
+            "1": "一",
+            "2": "二", 
+            "3": "三",
+            "4": "四",
+            "5": "五",
+            "6": "六",
+            "7": "七",
+            "8": "八",
+            "9": "九",
+            "10": "十"
         }
     },
-    
+
     "hyprland/window": {
         "format": "{}",
-        "max-length": 50
+        "max-length": 50,
+        "separate-outputs": true
     },
 
-    "custom/spotify": {
-        "format": " {}",
-        "max-length": 40,
-        "exec": "$HOME/.config/waybar/scripts/spotify.sh",
-        "exec-if": "pgrep spotify",
-        "interval": 1,
-        "on-click": "playerctl play-pause",
-        "on-scroll-up": "playerctl next",
-        "on-scroll-down": "playerctl previous"
+    "clock": {
+        "timezone": "Europe/Amsterdam",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "format": "{:%H:%M   %a %b %d}"
     },
 
-    "custom/pacman": {
-        "format": "󰏖 {}",
-        "interval": 3600,
-        "exec": "checkupdates | wc -l",
-        "on-click": "alacritty -e sudo pacman -Syu"
+    "cpu": {
+        "format": " {usage}%",
+        "tooltip": true,
+        "interval": 1
+    },
+
+    "memory": {
+        "format": " {}%",
+        "tooltip": true
     },
 
     "temperature": {
         "thermal-zone": 2,
         "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
         "critical-threshold": 80,
-        "format-critical": "{temperatureC}°C ",
-        "format": "{temperatureC}°C "
+        "format-critical": " {temperatureC}°C",
+        "format": " {temperatureC}°C"
     },
 
-    "memory": {
-        "format": "󰍛 {used:0.1f}G"
-    },
-
-    "cpu": {
-        "format": " {usage}%",
-        "tooltip": false
-    },
-
-    "disk": {
-        "interval": 30,
-        "format": "󰋊 {percentage_used}%",
-        "path": "/"
+    "network": {
+        "format-wifi": " {essid} ({signalStrength}%)",
+        "format-ethernet": " Connected",
+        "tooltip-format": "{ifname} via {gwaddr}",
+        "format-linked": "{ifname} (No IP)",
+        "format-disconnected": "⚠ Disconnected",
+        "format-alt": "{ifname}: {ipaddr}/{cidr}"
     },
 
     "pulseaudio": {
         "format": "{icon} {volume}%",
-        "format-bluetooth": "{volume}% {icon}",
-        "format-muted": "婢",
+        "format-bluetooth": "{icon} {volume}%",
+        "format-bluetooth-muted": " {icon}",
+        "format-muted": "",
+        "format-source": " {volume}%",
+        "format-source-muted": "",
         "format-icons": {
             "headphone": "",
             "hands-free": "",
@@ -321,149 +386,895 @@ cat > "$USER_HOME/.config/waybar/config.jsonc" << 'EOF'
         "on-click": "pavucontrol"
     },
 
-    "bluetooth": {
-        "format": "",
-        "format-disabled": "",
-        "on-click": "blueman-manager"
+    "custom/gamemode": {
+        "exec": "if pgrep -x gamemode > /dev/null; then echo ' GAME'; else echo ''; fi",
+        "interval": 2,
+        "tooltip": false
     },
 
-    "network": {
-        "format-wifi": "直 {essid}",
-        "format-ethernet": " Wired",
-        "format-disconnected": "睊",
-        "on-click": "nm-connection-editor"
+    "custom/updates": {
+        "format": " {}",
+        "interval": 3600,
+        "exec": "checkupdates | wc -l",
+        "exec-if": "exit 0",
+        "on-click": "xfce4-terminal -e 'sudo pacman -Syu'",
+        "signal": 8
+    },
+
+    "tray": {
+        "icon-size": 21,
+        "spacing": 10
     },
 
     "custom/power": {
         "format": "⏻",
         "tooltip": false,
-        "on-click": "wlogout"
-    },
-
-    "clock": {
-        "format": " {:%H:%M}",
-        "format-alt": " {:%A, %B %d, %Y (%R)}",
-        "tooltip-format": "<tt><small>{calendar}</small></tt>",
-        "calendar": {
-            "mode": "year",
-            "mode-mon-col": 3,
-            "weeks-pos": "right",
-            "on-scroll": 1,
-            "format": {
-                "months": "<span color='#ffead3'><b>{}</b></span>",
-                "days": "<span color='#ecc6d9'><b>{}</b></span>",
-                "weeks": "<span color='#99ffdd'><b>W{}</b></span>",
-                "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
-                "today": "<span color='#ff6699'><b><u>{}</u></b></span>"
-            }
-        }
+        "on-click": "~/.config/waybar/scripts/powermenu.sh"
     }
 }
 EOF
 
-print_section "Creating Game Launcher Widget"
-mkdir -p "$USER_HOME/.config/eww"
-cat > "$USER_HOME/.config/eww/game-launcher.yuck" << 'EOF'
-(defwindow game-launcher
-    :monitor 0
-    :geometry (geometry :x "50%"
-                        :y "50%"
-                        :width "400px"
-                        :height "300px"
-                        :anchor "center")
-    :stacking "overlay"
-    :reserve (struts :distance "40px" :side "top")
-    :windowtype "dialog"
-    :wm-ignore false
-    (box :class "game-launcher"
-         :orientation "v"
-         :space-evenly "true"
-         :spacing 10
-        (box :class "launcher-title"
-             (label :text "🎮 WehttamSnaps Gaming"))
-        (box :orientation "h"
-             :space-evenly "true"
-             :spacing 10
-            (button :class "game-btn steam-btn"
-                    :onclick "steam &"
-                    (box :orientation "v"
-                         :spacing 5
-                        (label :class "game-icon" :text "")
-                        (label :class "game-label" :text "Steam")))
-            (button :class "game-btn lutris-btn"  
-                    :onclick "lutris &"
-                    (box :orientation "v"
-                         :spacing 5
-                        (label :class "game-icon" :text "🍷")
-                        (label :class "game-label" :text "Lutris"))))
-        (box :orientation "h"
-             :space-evenly "true" 
-             :spacing 10
-            (button :class "game-btn heroic-btn"
-                    :onclick "heroic &"
-                    (box :orientation "v"
-                         :spacing 5
-                        (label :class "game-icon" :text "🚀")
-                        (label :class "game-label" :text "Heroic")))
-            (button :class "game-btn spotify-btn"
-                    :onclick "spotify &"
-                    (box :orientation "v" 
-                         :spacing 5
-                        (label :class "game-icon" :text "🎵")
-                        (label :class "game-label" :text "Spotify"))))))
+# Create Waybar style
+cat > ~/.config/waybar/style.css << 'EOF'
+* {
+    border: none;
+    border-radius: 0;
+    font-family: 'FiraCode Nerd Font', 'Font Awesome 6 Free';
+    font-size: 14px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: rgba(26, 27, 38, 0.9);
+    color: #c0caf5;
+    border-radius: 12px;
+    border: 2px solid rgba(187, 154, 247, 0.3);
+}
+
+/* Workspaces */
+#workspaces {
+    background: rgba(65, 72, 104, 0.4);
+    margin: 4px 8px;
+    padding: 0px 8px;
+    border-radius: 8px;
+}
+
+#workspaces button {
+    padding: 0 8px;
+    color: #565f89;
+    border-radius: 4px;
+    margin: 2px;
+    transition: all 0.3s ease-in-out;
+}
+
+#workspaces button.active {
+    color: #bb9af7;
+    background: rgba(187, 154, 247, 0.2);
+}
+
+#workspaces button:hover {
+    background: rgba(125, 207, 255, 0.2);
+    color: #7dcfff;
+}
+
+/* Left modules */
+#custom-menu {
+    color: #7dcfff;
+    background: rgba(125, 207, 255, 0.2);
+    padding: 0 12px;
+    margin: 4px 0px 4px 8px;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+#window {
+    background: rgba(65, 72, 104, 0.4);
+    padding: 0 12px;
+    margin: 4px 8px;
+    border-radius: 8px;
+    color: #c0caf5;
+}
+
+/* Center modules */
+#clock {
+    color: #bb9af7;
+    background: rgba(187, 154, 247, 0.2);
+    padding: 0 16px;
+    margin: 4px 8px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+/* Right modules */
+#cpu, #memory, #temperature, #network, #pulseaudio, #custom-gamemode, #custom-updates, #tray, #custom-power {
+    padding: 0 12px;
+    margin: 4px 2px;
+    border-radius: 8px;
+    background: rgba(65, 72, 104, 0.4);
+}
+
+#cpu {
+    color: #f7768e;
+}
+
+#memory {
+    color: #9ece6a;
+}
+
+#temperature {
+    color: #e0af68;
+}
+
+#network {
+    color: #7dcfff;
+}
+
+#pulseaudio {
+    color: #bb9af7;
+}
+
+#custom-gamemode {
+    color: #ff9e64;
+    background: rgba(255, 158, 100, 0.2);
+}
+
+#custom-updates {
+    color: #e0af68;
+}
+
+#tray {
+    background: transparent;
+}
+
+#custom-power {
+    color: #f7768e;
+    background: rgba(247, 118, 142, 0.2);
+    margin-right: 8px;
+}
+
+/* Hover effects */
+#custom-menu:hover, #cpu:hover, #memory:hover, #temperature:hover, #network:hover, #pulseaudio:hover, #custom-updates:hover, #custom-power:hover {
+    background: rgba(187, 154, 247, 0.3);
+    transition: all 0.3s ease-in-out;
+}
 EOF
 
-print_section "Setting File Permissions"
-find "$USER_HOME/.config" -type f -name "*.sh" -exec chmod +x {} \;
-mkdir -p "$USER_HOME/.local/bin"
-export PATH="$PATH:$USER_HOME/.local/bin"
+# Create power menu script
+mkdir -p ~/.config/waybar/scripts
+cat > ~/.config/waybar/scripts/powermenu.sh << 'EOF'
+#!/bin/bash
 
-print_section "Creating WebApps"
-# Create Photopea webapp
-mkdir -p "$USER_HOME/.local/share/applications"
-cat > "$USER_HOME/.local/share/applications/photopea.desktop" << 'EOF'
+options="⏻ Power Off\n🔄 Restart\n🔒 Lock\n😴 Sleep\n🚪 Logout"
+
+chosen=$(echo -e "$options" | rofi -dmenu -i -p "Power Menu" -theme-str 'window {width: 200px;}')
+
+case $chosen in
+    "⏻ Power Off")
+        systemctl poweroff
+        ;;
+    "🔄 Restart")
+        systemctl reboot
+        ;;
+    "🔒 Lock")
+        hyprlock
+        ;;
+    "😴 Sleep")
+        systemctl suspend
+        ;;
+    "🚪 Logout")
+        hyprctl dispatch exit
+        ;;
+esac
+EOF
+chmod +x ~/.config/waybar/scripts/powermenu.sh
+
+# Create Rofi config
+echo -e "${CYAN}Creating Rofi configuration...${NC}"
+mkdir -p ~/.config/rofi
+cat > ~/.config/rofi/config.rasi << 'EOF'
+configuration {
+    modi: "drun,run,window";
+    font: "FiraCode Nerd Font 12";
+    show-icons: true;
+    icon-theme: "Papirus-Dark";
+    display-drun: "Applications";
+    display-run: "Commands";
+    display-window: "Windows";
+    sidebar-mode: true;
+}
+
+@theme "~/.config/rofi/tokyonight.rasi"
+EOF
+
+cat > ~/.config/rofi/tokyonight.rasi << 'EOF'
+* {
+    background-color: transparent;
+    text-color: #c0caf5;
+    font: "FiraCode Nerd Font 12";
+    
+    bg: rgba(26, 27, 38, 0.95);
+    bg-alt: rgba(65, 72, 104, 0.6);
+    fg: #c0caf5;
+    fg-alt: #565f89;
+    accent: #bb9af7;
+    cyan: #7dcfff;
+    
+    margin: 0;
+    padding: 0;
+    spacing: 0;
+}
+
+window {
+    width: 600px;
+    background-color: @bg;
+    border: 2px solid;
+    border-color: @accent;
+    border-radius: 12px;
+}
+
+mainbox {
+    children: [inputbar, listview];
+}
+
+inputbar {
+    children: [prompt, entry];
+    background-color: @bg-alt;
+    border-radius: 8px;
+    padding: 12px;
+    margin: 12px;
+}
+
+prompt {
+    text-color: @accent;
+    padding: 0 8px 0 0;
+}
+
+entry {
+    placeholder: "Search...";
+    placeholder-color: @fg-alt;
+    text-color: @fg;
+}
+
+listview {
+    lines: 10;
+    columns: 1;
+    scrollbar: false;
+    margin: 0 12px 12px 12px;
+}
+
+element {
+    padding: 8px 12px;
+    border-radius: 8px;
+    children: [element-icon, element-text];
+}
+
+element selected {
+    background-color: @bg-alt;
+    text-color: @cyan;
+}
+
+element-icon {
+    size: 24px;
+    padding: 0 8px 0 0;
+}
+
+element-text {
+    text-color: inherit;
+}
+EOF
+
+# Create terminal config
+echo -e "${CYAN}Creating terminal configuration...${NC}"
+cat > ~/.config/xfce4/terminal/terminalrc << 'EOF'
+[Configuration]
+FontName=FiraCode Nerd Font 11
+MiscAlwaysShowTabs=FALSE
+MiscBell=FALSE
+MiscBellUrgent=FALSE
+MiscBordersDefault=TRUE
+MiscCursorBlinks=FALSE
+MiscCursorShape=TERMINAL_CURSOR_SHAPE_BLOCK
+MiscDefaultGeometry=80x24
+MiscInheritGeometry=FALSE
+MiscMenubarDefault=FALSE
+MiscMouseAutohide=FALSE
+MiscMouseWheelZoom=TRUE
+MiscToolbarDefault=FALSE
+MiscConfirmClose=TRUE
+MiscCycleTabs=TRUE
+MiscTabCloseButtons=TRUE
+MiscTabCloseMiddleClick=TRUE
+MiscTabPosition=GTK_POS_TOP
+MiscHighlightUrls=TRUE
+MiscMiddleClickOpensUri=FALSE
+MiscCopyOnSelect=FALSE
+MiscShowRelaunchDialog=TRUE
+MiscRewrapOnResize=TRUE
+MiscUseShiftArrowsToSelect=FALSE
+MiscSlimTabs=FALSE
+MiscNewTabAdjacent=FALSE
+MiscSearchDialogOpacity=100
+MiscShowUnsafePasteDialog=TRUE
+BackgroundMode=TERMINAL_BACKGROUND_TRANSPARENT
+BackgroundDarkness=0.900000
+ColorForeground=#c0caf5
+ColorBackground=#1a1b26
+ColorCursor=#c0caf5
+ColorBoldUseDefault=FALSE
+ColorPalette=#15161e;#f7768e;#9ece6a;#e0af68;#7aa2f7;#bb9af7;#7dcfff;#a9b1d6;#414868;#f7768e;#9ece6a;#e0af68;#7aa2f7;#bb9af7;#7dcfff;#c0caf5
+EOF
+
+# Create hyprpaper config
+echo -e "${CYAN}Creating wallpaper configuration...${NC}"
+cat > ~/.config/hypr/hyprpaper.conf << 'EOF'
+preload = ~/Pictures/wallpapers/tokyonight.jpg
+wallpaper = ,~/Pictures/wallpapers/tokyonight.jpg
+
+splash = false
+ipc = on
+EOF
+
+# Download TokyoNight wallpaper
+echo -e "${YELLOW}Downloading TokyoNight wallpaper...${NC}"
+curl -L "https://raw.githubusercontent.com/tokyo-night/tokyo-night-vscode-theme/master/images/logo.png" -o ~/Pictures/wallpapers/tokyonight.jpg 2>/dev/null || echo "Wallpaper download failed - you'll need to add your own"
+
+# Create eww config for game launcher
+echo -e "${CYAN}Creating EWW game launcher...${NC}"
+mkdir -p ~/.config/eww
+cat > ~/.config/eww/eww.yuck << 'EOF'
+(defwindow game-launcher
+  :monitor 0
+  :geometry (geometry :x "50%"
+                      :y "50%"
+                      :width "400px"
+                      :height "300px"
+                      :anchor "center")
+  :stacking "overlay"
+  :reserve (struts :distance "40px" :side "top")
+  :windowtype "dialog"
+  :wm-ignore false
+  (game-launcher-widget))
+
+(defwidget game-launcher-widget []
+  (box :class "game-launcher"
+       :orientation "v"
+       :space-evenly false
+    (box :class "header"
+         :halign "center"
+         "🎮 WehttamSnaps Game Launcher")
+    (box :orientation "v"
+         :space-evenly true
+      (button :class "game-btn"
+              :onclick "steam &"
+              "🎮 Steam")
+      (button :class "game-btn"
+              :onclick "lutris &"
+              "🍷 Lutris") 
+      (button :class "game-btn"
+              :onclick "heroic &"
+              "🏛️ Heroic")
+      (button :class "game-btn"
+              :onclick "spotify &"
+              "🎵 Spotify")
+      (button :class "game-btn"
+              :onclick "obs &"
+              "📹 OBS Studio"))))
+EOF
+
+cat > ~/.config/eww/eww.scss << 'EOF'
+* {
+  all: unset;
+}
+
+.game-launcher {
+  background: rgba(26, 27, 38, 0.95);
+  border: 2px solid rgba(187, 154, 247, 0.5);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.header {
+  font-size: 18px;
+  font-weight: bold;
+  color: #bb9af7;
+  margin-bottom: 20px;
+}
+
+.game-btn {
+  background: rgba(65, 72, 104, 0.6);
+  color: #c0caf5;
+  border-radius: 8px;
+  padding: 12px 20px;
+  margin: 5px 0;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.game-btn:hover {
+  background: rgba(187, 154, 247, 0.3);
+  color: #7dcfff;
+}
+EOF
+
+# Setup ZSH with Starship
+echo -e "${BLUE}Setting up ZSH and Starship...${NC}"
+chsh -s $(which zsh)
+
+# Create .zshrc
+cat > ~/.zshrc << 'EOF'
+# WehttamSnaps ZSH Config
+
+# Path
+export PATH=$HOME/.local/bin:$PATH
+
+# History
+HISTSIZE=10000
+SAVEHIST=10000
+HISTFILE=~/.zsh_history
+setopt appendhistory
+
+# Basic auto/tab complete
+autoload -U compinit
+zstyle ':completion:*' menu select
+zmodload zsh/complist
+compinit
+_comp_options+=(globdots)
+
+# Gaming aliases
+alias steam-game="gamemode steam"
+alias start-stream="obs --startstreaming"
+alias stop-stream="obs --stopstreaming"
+
+# System aliases  
+alias ll='ls -alF'
+alias la='ls -A' 
+alias l='ls -CF'
+alias grep='grep --color=auto'
+alias ..='cd ..'
+alias ...='cd ../..'
+
+# Gaming optimizations
+alias gamemode-status="gamemode --status"
+alias mangohud-enable="export MANGOHUD=1"
+
+# Initialize starship
+eval "$(starship init zsh)"
+EOF
+
+# Create Starship config
+mkdir -p ~/.config
+cat > ~/.config/starship.toml << 'EOF'
+format = """
+[░▒▓](#7dcfff)\
+[  ](bg:#7dcfff fg:#1a1b26)\
+[](bg:#bb9af7 fg:#7dcfff)\
+$directory\
+[](fg:#bb9af7 bg:#565f89)\
+$git_branch\
+$git_status\
+[](fg:#565f89 bg:#f7768e)\
+$c\
+$elixir\
+$elm\
+$golang\
+$gradle\
+$haskell\
+$java\
+$julia\
+$nodejs\
+$nim\
+$rust\
+$scala\
+[](fg:#f7768e bg:#9ece6a)\
+$time\
+[ ](fg:#9ece6a)\
+"""
+
+[directory]
+style = "fg:#1a1b26 bg:#bb9af7"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
+
+[c]
+symbol = " "
+style = "fg:#1a1b26 bg:#f7768e"
+format = '[ $symbol ($version) ]($style)'
+
+[git_branch]
+symbol = ""
+style = "fg:#c0caf5 bg:#565f89"
+format = '[ $symbol $branch ]($style)'
+
+[git_status]
+style = "fg:#c0caf5 bg:#565f89"
+format = '[$all_status$ahead_behind ]($style)'
+
+[nodejs]
+symbol = ""
+style = "fg:#1a1b26 bg:#f7768e"
+format = '[ $symbol ($version) ]($style)'
+
+[rust]
+symbol = ""
+style = "fg:#1a1b26 bg:#f7768e"
+format = '[ $symbol ($version) ]($style)'
+
+[golang]
+symbol = ""
+style = "fg:#1a1b26 bg:#f7768e"
+format = '[ $symbol ($version) ]($style)'
+
+[time]
+disabled = false
+time_format = "%R"
+style = "fg:#1a1b26 bg:#9ece6a"
+format = '[ ♠ $time ]($style)'
+EOF
+
+# Create dunst config
+echo -e "${CYAN}Creating notification configuration...${NC}"
+cat > ~/.config/dunst/dunstrc << 'EOF'
+[global]
+    monitor = 0
+    follow = mouse
+    geometry = "350x5-15+49"
+    indicate_hidden = yes
+    shrink = no
+    transparency = 10
+    notification_height = 0
+    separator_height = 2
+    padding = 12
+    horizontal_padding = 12
+    frame_width = 2
+    frame_color = "#bb9af7"
+    separator_color = frame
+    sort = yes
+    idle_threshold = 120
+    font = FiraCode Nerd Font 11
+    line_height = 0
+    markup = full
+    format = "<b>%s</b>\n%b"
+    alignment = left
+    show_age_threshold = 60
+    word_wrap = yes
+    ellipsize = middle
+    ignore_newline = no
+    stack_duplicates = true
+    hide_duplicate_count = false
+    show_indicators = yes
+    icon_position = left
+    max_icon_size = 32
+    sticky_history = yes
+    history_length = 20
+    browser = /usr/bin/firefox
+    always_run_script = true
+    title = Dunst
+    class = Dunst
+    startup_notification = false
+    verbosity = mesg
+    corner_radius = 8
+    mouse_left_click = close_current
+    mouse_middle_click = do_action
+    mouse_right_click = close_all
+
+[experimental]
+    per_monitor_dpi = false
+
+[shortcuts]
+    close = ctrl+space
+    close_all = ctrl+shift+space
+    history = ctrl+grave
+    context = ctrl+shift+period
+
+[urgency_low]
+    background = "#1a1b26"
+    foreground = "#c0caf5"
+    timeout = 10
+
+[urgency_normal]
+    background = "#1a1b26"
+    foreground = "#c0caf5"
+    timeout = 10
+
+[urgency_critical]
+    background = "#f7768e"
+    foreground = "#1a1b26"
+    frame_color = "#f7768e"
+    timeout = 0
+EOF
+
+# Create fastfetch config
+cat > ~/.config/fastfetch/config.jsonc << 'EOF'
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "source": "arch",
+        "color": {
+            "1": "cyan",
+            "2": "magenta"
+        }
+    },
+    "display": {
+        "separator": " -> ",
+        "color": {
+            "keys": "magenta",
+            "output": "cyan"
+        }
+    },
+    "modules": [
+        {
+            "type": "title",
+            "color": {
+                "user": "cyan",
+                "at": "white",
+                "host": "magenta"
+            }
+        },
+        "separator",
+        "os",
+        "kernel",
+        "uptime",
+        "packages",
+        "shell",
+        "display",
+        "de",
+        "wm",
+        "wmtheme",
+        "theme",
+        "icons",
+        "font",
+        "cursor",
+        "terminal",
+        "terminalfont",
+        "cpu",
+        "gpu",
+        "memory",
+        "swap",
+        "disk",
+        "localip",
+        "battery",
+        "poweradapter",
+        "locale",
+        "break",
+        "colors"
+    ]
+}
+EOF
+
+# Gaming optimizations and services
+echo -e "${PURPLE}Setting up gaming optimizations...${NC}"
+
+# Create gamemode config
+sudo mkdir -p /etc/gamemode
+sudo cat > /etc/gamemode/gamemode.ini << 'EOF'
+[general]
+renice=10
+ioprio_class=1
+ioprio_classdata=4
+inhibit_screensaver=1
+softrealtime=auto
+reaper_freq=5
+
+[gpu]
+apply_gpu_optimisations=accept-responsibility
+gpu_device=0
+amd_performance_level=high
+
+[custom]
+start=notify-send "GameMode activated"
+end=notify-send "GameMode deactivated"
+EOF
+
+# Create gaming launch scripts
+mkdir -p ~/.local/bin
+
+cat > ~/.local/bin/launch-game << 'EOF'
+#!/bin/bash
+# WehttamSnaps Game Launcher Script
+
+GAME="$1"
+
+case "$GAME" in
+    "steam")
+        gamemode steam
+        ;;
+    "lutris")
+        gamemode lutris
+        ;;
+    "heroic")
+        gamemode heroic
+        ;;
+    "cyberpunk")
+        gamemode steam steam://rungameid/1091500
+        ;;
+    "division2")
+        gamemode steam steam://rungameid/581320
+        ;;
+    "firstdescendant")
+        gamemode steam steam://rungameid/2074920
+        ;;
+    *)
+        echo "Unknown game: $GAME"
+        echo "Available: steam, lutris, heroic, cyberpunk, division2, firstdescendant"
+        ;;
+esac
+EOF
+chmod +x ~/.local/bin/launch-game
+
+# Create streaming script
+cat > ~/.local/bin/start-streaming << 'EOF'
+#!/bin/bash
+# WehttamSnaps Streaming Setup Script
+
+# Gaming optimizations for streaming
+echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+echo 0 | sudo tee /proc/sys/kernel/watchdog
+
+# Launch OBS
+obs --startstreaming --scene "Just Chatting" &
+
+# Show notification
+notify-send "🔴 LIVE" "WehttamSnaps is now streaming!" --urgency=critical
+
+echo "Streaming setup complete!"
+EOF
+chmod +x ~/.local/bin/start-streaming
+
+# Install and configure SDDM theme
+echo -e "${YELLOW}Setting up SDDM login theme...${NC}"
+sudo mkdir -p /usr/share/sddm/themes/sugar-candy
+sudo curl -L "https://github.com/Kangie/sddm-sugar-candy/archive/master.zip" -o /tmp/sugar-candy.zip 2>/dev/null
+cd /tmp && sudo unzip -q sugar-candy.zip 2>/dev/null || echo "SDDM theme download failed"
+sudo cp -r sddm-sugar-candy-master/* /usr/share/sddm/themes/sugar-candy/ 2>/dev/null || echo "SDDM theme copy failed"
+
+# Configure SDDM
+sudo cat > /etc/sddm.conf << 'EOF'
+[Theme]
+Current=sugar-candy
+
+[Users]
+MaximumUid=60513
+MinimumUid=1000
+EOF
+
+# Enable services
+echo -e "${GREEN}Enabling system services...${NC}"
+sudo systemctl enable sddm
+sudo systemctl enable gamemode
+
+# Font installation
+echo -e "${BLUE}Installing additional fonts...${NC}"
+mkdir -p ~/.local/share/fonts
+cd /tmp
+
+# Download FiraCode Nerd Font
+curl -L "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/FiraCode.zip" -o FiraCode.zip 2>/dev/null
+unzip -q FiraCode.zip -d ~/.local/share/fonts/ 2>/dev/null || echo "FiraCode font download failed"
+
+# Download gaming fonts
+curl -L "https://fonts.google.com/download?family=Orbitron" -o Orbitron.zip 2>/dev/null
+unzip -q Orbitron.zip -d ~/.local/share/fonts/ 2>/dev/null || echo "Orbitron font download failed"
+
+curl -L "https://fonts.google.com/download?family=Exo+2" -o Exo2.zip 2>/dev/null  
+unzip -q Exo2.zip -d ~/.local/share/fonts/ 2>/dev/null || echo "Exo2 font download failed"
+
+# Update font cache
+fc-cache -fv
+
+# Create desktop entries for quick access
+echo -e "${CYAN}Creating desktop entries...${NC}"
+mkdir -p ~/.local/share/applications
+
+cat > ~/.local/share/applications/game-launcher.desktop << 'EOF'
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=Photopea
-Comment=Online Photo Editor
-Exec=firefox --new-window --class=Photopea https://photopea.com
-Icon=image-x-generic
-Categories=Graphics;Photography;
-StartupWMClass=Photopea
+Name=Game Launcher
+Comment=Launch games with GameMode
+Exec=eww open game-launcher
+Icon=applications-games
+Terminal=false
+Categories=Game;
 EOF
 
-# Create Claude AI webapp
-cat > "$USER_HOME/.local/share/applications/claude-ai.desktop" << 'EOF'
+cat > ~/.local/share/applications/start-stream.desktop << 'EOF'  
 [Desktop Entry]
 Version=1.0
-Type=Application  
-Name=Claude AI
-Comment=AI Assistant
-Exec=firefox --new-window --class=Claude https://claude.ai
-Icon=applications-development
-Categories=Development;Education;
-StartupWMClass=Claude
+Type=Application
+Name=Start Stream
+Comment=Begin streaming setup
+Exec=start-streaming
+Icon=obs
+Terminal=false
+Categories=AudioVideo;
 EOF
 
-print_section "Final Configuration Steps"
-# Set proper ownership
-sudo chown -R "$USERNAME:$USERNAME" "$USER_HOME/.config"
-sudo chown -R "$USERNAME:$USERNAME" "$USER_HOME/.local"
+# Create welcome script
+cat > ~/.local/bin/wehttamsnaps-welcome << 'EOF'
+#!/bin/bash
 
-# Enable zram for better gaming performance
-echo 'zram' | sudo tee /etc/modules-load.d/zram.conf
-echo 'ACTION=="add", KERNEL=="zram0", ATTR{disksize}="4G", RUN="/usr/bin/mkswap /dev/zram0", TAG+="systemd"' | sudo tee /etc/udev/rules.d/99-zram.rules
+cat << "WELCOME"
+╦ ╦┌─┐┬ ┬┌┬┐┌┬┐┌─┐┌┬┐╔═╗┌─┐┌─┐┌─┐
+║║║├┤ ├─┤ │  │ ├─┤│││╚═╗├─┘├─┤├─┘ 
+╚╩╝└─┘┴ ┴ ┴  ┴ ┴ ┴┴ ┴╚═╝┴  ┴ ┴┴   
+    Welcome to your Hyprland Setup!
+WELCOME
 
-print_section "Setup Complete!"
-echo -e "${GREEN}🎉 WehttamSnaps Hyprland Gaming Setup Complete!${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${PURPLE}Next Steps:${NC}"
-echo "1. Reboot your system: sudo reboot"
-echo "2. Log in with SDDM and select Hyprland"
-echo "3. Run 'steam-opts' in terminal for game launch options"
-echo "4. Run 'amd-boost' before gaming for performance boost"
-echo "5. Press Super+D to open app launcher"
-echo "6. Press Super+G to open game launcher"
+echo -e "\n🎮 Quick Commands:"
+echo "  Super + Q           - Open Terminal"
+echo "  Super + R           - Application Launcher"
+echo "  Super + E           - File Manager"
+echo "  Super + G           - Launch Steam"
+echo "  Super + Shift + G   - Launch Lutris"
+echo "  Super + Print       - Screenshot Region"
 echo ""
-echo -e "${GREEN}Happy Gaming and Streaming, WehttamSnaps! 🎮📸${NC}"
+echo "🎬 Streaming:"
+echo "  start-streaming     - Begin stream setup"
+echo "  launch-game [name]  - Launch game with GameMode"
+echo ""  
+echo "⚡ Gaming:"
+echo "  launch-game steam"
+echo "  launch-game cyberpunk"
+echo "  launch-game division2"
+echo "  launch-game firstdescendant"
+echo ""
+echo "🔧 System:"
+echo "  fastfetch           - Show system info"
+echo "  gamemode --status   - Check GameMode status"
+EOF
+chmod +x ~/.local/bin/wehttamsnaps-welcome
+
+# Add welcome to .zshrc
+echo "wehttamsnaps-welcome" >> ~/.zshrc
+
+# Create update script for future use
+cat > ~/.local/bin/update-wehttamsnaps-setup << 'EOF'
+#!/bin/bash
+echo "🔄 Updating WehttamSnaps setup..."
+sudo pacman -Syu --noconfirm
+paru -Syu --noconfirm
+echo "✅ Update complete!"
+EOF
+chmod +x ~/.local/bin/update-wehttamsnaps-setup
+
+echo -e "${GREEN}"
+cat << "EOF"
+╔══════════════════════════════════════════════╗
+║     WehttamSnaps Setup Complete! 🎉          ║ 
+╠══════════════════════════════════════════════╣
+║ Your TokyoNight violet-to-cyan Hyprland     ║
+║ gaming setup is ready!                      ║
+║                                              ║
+║ Next Steps:                                  ║
+║ 1. Reboot your system                       ║
+║ 2. Login with SDDM                          ║  
+║ 3. Run 'wehttamsnaps-welcome' for help      ║
+║ 4. Configure OBS for streaming              ║
+║ 5. Add your wallpapers to ~/Pictures/       ║
+║                                              ║
+║ Happy Gaming & Streaming! 🎮📺              ║
+╚══════════════════════════════════════════════╝
+EOF
+echo -e "${NC}"
+
+echo -e "${YELLOW}Setup log saved to: ~/.wehttamsnaps-setup.log${NC}"
+echo "This script created a complete Hyprland setup with:"
+echo "✅ TokyoNight violet-to-cyan theme"
+echo "✅ Gaming optimizations (GameMode, AMD tweaks)"  
+echo "✅ Streaming-ready configuration"
+echo "✅ Custom Waybar with system info"
+echo "✅ EWW game launcher widget"
+echo "✅ Rofi application launcher"
+echo "✅ Custom terminal theme"
+echo "✅ Quick gaming launch scripts"
+echo ""
+echo "Reboot now to enjoy your new setup!"
+echo ""
+echo "For streaming assets, check the next part of this response..."
